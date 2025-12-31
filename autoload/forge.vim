@@ -13,11 +13,6 @@ export def Init(): void
     dir ..= '/'
   endif
 
-  # If this buffer is already a forge buffer for the same directory, do nothing.
-  if &filetype ==# 'forge' && get(b:, 'forge_dir', '') ==# dir
-    return
-  endif
-
   b:forge_dir = dir
   noautocmd noswapfile keepalt silent file `=b:forge_dir`
   setlocal modifiable
