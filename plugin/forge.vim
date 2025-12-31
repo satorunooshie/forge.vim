@@ -11,7 +11,7 @@ import autoload 'edit.vim' as forge_edit
 
 augroup _forge_
   autocmd!
-  autocmd BufEnter * if &buftype ==# '' && isdirectory(resolve(expand('%:p'))) && index(['gitcommit', 'help'], &filetype) == -1 | call forge#Init() | endif
+  autocmd BufEnter * if &buftype !~# 'terminal\|quickfix\|prompt' && index(['gitcommit', 'help'], &filetype) == -1 | call forge#Init() | endif
   autocmd DirChanged * call forge#Chdir()
   autocmd VimEnter * call forge#Startup()
 augroup END
