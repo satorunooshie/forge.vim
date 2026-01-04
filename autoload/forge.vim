@@ -51,7 +51,7 @@ export def Init(): void
   var alt = fnamemodify(expand('#'), ':p:h:gs!\!/!')
   if substitute(dir, '/$', '', '') ==# alt
     alt = fnamemodify(expand('#'), ':t')
-    call search('\v^\V' .. escape(alt, '\') .. '\v$', 'c')
+    search('\v^\V' .. escape(alt, '\') .. '\v$', 'c')
   endif
 enddef
 
@@ -86,7 +86,7 @@ export def Chdir(): void
     return
   endif
   noautocmd silent file `=getcwd()`
-  call Init()
+  Init()
 enddef
 
 export def Startup(): void
@@ -110,14 +110,24 @@ export def Open(): void
 enddef
 
 export def Up(): void
-  var dir = substitute(b:forge_dir, '/$', '', '')
-  var name = fnamemodify(dir, ':t:gs!\!/!')
-  if empty(name)
+  # Go up exactly one directory from the current forge directory.
+  var cur = forge#Curdir()
+  if empty(cur)
     return
   endif
-  dir = fnamemodify(dir, ':p:h:h:gs!\!/!')
-  execute 'edit' fnameescape(dir)
-  call search('\v^\V' .. escape(name, '\') .. '/\v$', 'c')
+
+  # Strip trailing slash and compute parent.
+  var child = substitute(cur, '/$', '', '')
+  var parent = fnamemodify(child, ':h')
+
+  # If we are already at the filesystem root, do nothing.
+  if parent ==# child
+    return
+  endif
+
+  var name = fnamemodify(child, ':t:gs!\!/!')
+  execute 'edit' fnameescape(parent)
+  search('\v^\V' .. escape(name, '\') .. '/\v$', 'c')
 enddef
 
 export def Home(): void
