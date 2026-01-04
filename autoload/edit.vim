@@ -261,6 +261,41 @@ def Apply(): void
     endif
   endfor
 
+  # When creating nested paths like "hoge/fuga/" or "hoge/fuga.txt"
+  # from a parent directory, make sure the top-level parent ("hoge/")
+  # is visible as an entry in the current forge buffer. Otherwise it
+  # can look like nothing changed because the nested path line is
+  # removed below.
+  var parents: list<string> = []
+  for op in operations
+    if (op['op'] ==# 'create' || op['op'] ==# 'create_dir') && has_key(op, 'name')
+      var name = op['name']
+      # Strip a trailing separator so we can reliably
+      # extract the top-level parent directory name.
+      var nameNoTrail = substitute(name, '[/\\]$', '', '')
+      if nameNoTrail =~# '[/\\]'
+        var sepidx = match(nameNoTrail, '[/\\]')
+        if sepidx > 0
+          var parent = nameNoTrail[0 : sepidx - 1] .. '/'
+          if index(parents, parent) == -1
+            add(parents, parent)
+          endif
+        endif
+      endif
+    endif
+  endfor
+
+  if !empty(parents)
+    var bufLines = getline(1, '$')
+    for parent in parents
+      if index(bufLines, parent) == -1
+        call append(line('$'), parent)
+        PropAddLineId(line('$'), parent)
+        add(bufLines, parent)
+      endif
+    endfor
+  endif
+
   try
     noautocmd noswapfile keepalt silent :%g/[/\\]./d _
   catch
