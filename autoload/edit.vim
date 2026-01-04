@@ -17,6 +17,16 @@ enddef
 var idname: string = 'forge-edit'
 
 def PropAddLineId(lnum: number, file: string): dict<any>
+  # Skip adding an ID for empty lines so that
+  # they are treated as new entries (create)
+  # rather than renames of a non-existent path.
+  if file ==# ''
+    if len(prop_list(lnum, {'type': idname})) > 0
+      prop_clear(lnum)
+    endif
+    return {'id': '', 'name': ''}
+  endif
+
   if len(prop_list(lnum, {'type': idname})) > 0
     prop_clear(lnum)
   endif
