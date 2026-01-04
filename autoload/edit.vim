@@ -289,7 +289,7 @@ def Apply(): void
     var bufLines = getline(1, '$')
     for parent in parents
       if index(bufLines, parent) == -1
-        call append(line('$'), parent)
+        append(line('$'), parent)
         PropAddLineId(line('$'), parent)
         add(bufLines, parent)
       endif
