@@ -121,7 +121,9 @@ export def Up(): void
   var parent = fnamemodify(child, ':h')
 
   # If we are already at the filesystem root, do nothing.
-  if parent ==# child
+  # At filesystem root, child can become empty (e.g. '/'),
+  # so treat that as "stop here" instead of jumping to '.'.
+  if parent ==# child || empty(child)
     return
   endif
 
